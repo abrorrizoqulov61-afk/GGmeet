@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="uz">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GGmeet — darsga kirish</title>
+  <style>
+    :root { color-scheme: dark; }
+    body { margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      background: #0f1218; color: #e8ebf1; font-family: "Segoe UI", system-ui, Arial, sans-serif; padding: 16px; box-sizing: border-box; }
+    .card { max-width: 440px; width: 100%; background: #171b23; border: 1px solid #2a3040; border-radius: 18px; padding: 28px; text-align: center; }
+    .brand { font-size: 30px; font-weight: 700; }
+    .logo { background: #2f6df6; color: #fff; border-radius: 8px; padding: 2px 8px; margin-right: 3px; }
+    p { color: #8b93a7; line-height: 1.5; }
+    .spinner { width: 34px; height: 34px; border: 3px solid #2a3040; border-top-color: #2f6df6; border-radius: 50%;
+      margin: 18px auto; animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    a.btn { display: inline-block; background: #2f6df6; color: #fff; text-decoration: none; padding: 12px 22px; border-radius: 10px; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="brand"><span class="logo">GG</span>meet</div>
+    <div class="spinner" id="spin"></div>
+    <p id="status">Dars xonasi qidirilmoqda...</p>
+    <a id="go" class="btn" style="display:none">Darsga kirish</a>
+  </div>
+  <script>
+    // O'qituvchi kompyuteri ishga tushganda link.json yangi tunnel manzili bilan yangilanadi.
+    async function check() {
+      const status = document.getElementById('status');
+      try {
+        const { url } = await fetch('link.json?t=' + Date.now(), { cache: 'no-store' }).then((r) => r.json());
+        if (!url) throw new Error('no url');
+        const ok = await fetch(url + '/api/config', { cache: 'no-store' }).then((r) => r.ok).catch(() => false);
+        if (!ok) throw new Error('offline');
+        status.textContent = 'Dars ochiq! Yo\'naltirilmoqda...';
+        const go = document.getElementById('go'); go.href = url; go.style.display = 'inline-block';
+        location.replace(url);
+      } catch {
+        status.textContent = 'Dars hozircha boshlanmagan. O\'qituvchi kompyuterni yoqishi bilan sahifa o\'zi ochiladi.';
+        setTimeout(check, 10000);
+      }
+    }
+    check();
+  </script>
+</body>
+</html>
